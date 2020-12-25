@@ -1,0 +1,59 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <a href="#!/list" class="btn btn-secondary"><i class="fa fa-list"></i> Trở về danh sách</a>
+    </div>
+</div>
+<br />
+<div class="row" ng-app="myApp">              
+    <div class="col-md-12" ng-controller="myDetailController">
+        <div class="tile">
+            <h3 class="tile-title">Thông tin loại chi phí</h3>
+            <div class="tile-body">
+                <form class="form-horizontal">
+                    <input type="hidden" ng-model="ServiceTypeId" placeholder="" />
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Thuộc cửa hàng:</label>
+                        <div class="col-md-8">
+                            <select class="form-control select2" id="selectShop" style="width:100%;" ng-model="ShopId">
+                                <option value="">- chọn cửa hàng -</option>
+                                <option ng-repeat="shop in shops" value="{{shop.ShopId}}" ng-selected="shop.ShopId == ShopId">{{shop.ShopName}}</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Tên loại dịch vụ:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Name" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Số thứ tự:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="OrderIndex" placeholder="">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="control-label col-md-3"></label>
+                        <div class="col-md-8">
+                            <div class="animated-checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="IsActive" id="checkboxIsActive" checked="checked"><span class="label-text"> Cho phép hoạt động</span>
+                                </label>
+                            </div>                                        
+                        </div>
+                    </div> 
+                </form>
+            </div>
+            <div class="tile-footer">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-3">
+                        <button class="btn btn-primary" type="button" ng-click="btnSaveClick()"><i class="fa fa-fw fa-lg fa-check-circle"></i>Đồng ý</button>&nbsp;&nbsp;&nbsp;
+                        <a class="btn btn-secondary" href="#!/list"><i class="fa fa-fw fa-lg fa-times-circle"></i>Hủy bỏ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

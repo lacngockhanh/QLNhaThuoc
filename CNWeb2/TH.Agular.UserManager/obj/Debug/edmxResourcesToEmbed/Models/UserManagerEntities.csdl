@@ -1,0 +1,429 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="UserManagerModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityContainer Name="UserManagerEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Applications" EntityType="UserManagerModel.Application" />
+    <EntitySet Name="Permits" EntityType="UserManagerModel.Permit" />
+    <EntitySet Name="ReceiptServices" EntityType="UserManagerModel.ReceiptService" />
+    <EntitySet Name="ReceiptStatus" EntityType="UserManagerModel.ReceiptStatu" />
+    <EntitySet Name="ReceiptTypes" EntityType="UserManagerModel.ReceiptType" />
+    <EntitySet Name="Roles" EntityType="UserManagerModel.Role" />
+    <AssociationSet Name="FK_Permits_Roles" Association="UserManagerModel.FK_Permits_Roles">
+      <End Role="Role" EntitySet="Roles" />
+      <End Role="Permit" EntitySet="Permits" />
+    </AssociationSet>
+    <EntitySet Name="Users" EntityType="UserManagerModel.User" />
+    <AssociationSet Name="FK_Permits_Users" Association="UserManagerModel.FK_Permits_Users">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Permit" EntitySet="Permits" />
+    </AssociationSet>
+    <EntitySet Name="Services" EntityType="UserManagerModel.Service" />
+    <AssociationSet Name="FK_ReceiptServices_Services" Association="UserManagerModel.FK_ReceiptServices_Services">
+      <End Role="Service" EntitySet="Services" />
+      <End Role="ReceiptService" EntitySet="ReceiptServices" />
+    </AssociationSet>
+    <EntitySet Name="ServiceTypes" EntityType="UserManagerModel.ServiceType" />
+    <EntitySet Name="Shops" EntityType="UserManagerModel.Shop" />
+    <AssociationSet Name="FK_Services_ServiceTypes" Association="UserManagerModel.FK_Services_ServiceTypes">
+      <End Role="ServiceType" EntitySet="ServiceTypes" />
+      <End Role="Service" EntitySet="Services" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Services_Shops" Association="UserManagerModel.FK_Services_Shops">
+      <End Role="Shop" EntitySet="Shops" />
+      <End Role="Service" EntitySet="Services" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ServiceTypes_Shops" Association="UserManagerModel.FK_ServiceTypes_Shops">
+      <End Role="Shop" EntitySet="Shops" />
+      <End Role="ServiceType" EntitySet="ServiceTypes" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Users_Shops" Association="UserManagerModel.FK_Users_Shops">
+      <End Role="Shop" EntitySet="Shops" />
+      <End Role="User" EntitySet="Users" />
+    </AssociationSet>
+    <EntitySet Name="Customers" EntityType="UserManagerModel.Customer" />
+    <AssociationSet Name="FK_Customers_Shops" Association="UserManagerModel.FK_Customers_Shops">
+      <End Role="Shop" EntitySet="Shops" />
+      <End Role="Customer" EntitySet="Customers" />
+    </AssociationSet>
+    <EntitySet Name="Receipts" EntityType="UserManagerModel.Receipt" />
+    <AssociationSet Name="FK_Receipts_Customers" Association="UserManagerModel.FK_Receipts_Customers">
+      <End Role="Customer" EntitySet="Customers" />
+      <End Role="Receipt" EntitySet="Receipts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Receipts_ReceiptStatus" Association="UserManagerModel.FK_Receipts_ReceiptStatus">
+      <End Role="ReceiptStatu" EntitySet="ReceiptStatus" />
+      <End Role="Receipt" EntitySet="Receipts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Receipts_ReceiptTypes" Association="UserManagerModel.FK_Receipts_ReceiptTypes">
+      <End Role="ReceiptType" EntitySet="ReceiptTypes" />
+      <End Role="Receipt" EntitySet="Receipts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Receipts_Shops" Association="UserManagerModel.FK_Receipts_Shops">
+      <End Role="Shop" EntitySet="Shops" />
+      <End Role="Receipt" EntitySet="Receipts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Receipts_Users" Association="UserManagerModel.FK_Receipts_Users">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Receipt" EntitySet="Receipts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ReceiptServices_Receipts" Association="UserManagerModel.FK_ReceiptServices_Receipts">
+      <End Role="Receipt" EntitySet="Receipts" />
+      <End Role="ReceiptService" EntitySet="ReceiptServices" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Application">
+    <Key>
+      <PropertyRef Name="ApplicationId" />
+    </Key>
+    <Property Name="ApplicationId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Name="FullName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+    <Property Name="PrivateKey" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="DateCreate" Type="DateTime" Precision="7" />
+    <Property Name="IsActive" Type="Boolean" />
+    <Property Name="IsDelete" Type="Boolean" />
+  </EntityType>
+  <EntityType Name="Permit">
+    <Key>
+      <PropertyRef Name="PermitId" />
+    </Key>
+    <Property Name="PermitId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="RoleId" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Role" Relationship="UserManagerModel.FK_Permits_Roles" FromRole="Permit" ToRole="Role" />
+    <NavigationProperty Name="User" Relationship="UserManagerModel.FK_Permits_Users" FromRole="Permit" ToRole="User" />
+  </EntityType>
+  <EntityType Name="ReceiptService">
+    <Key>
+      <PropertyRef Name="ReceiptServiceId" />
+    </Key>
+    <Property Name="ReceiptServiceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ReceiptId" Type="Int32" Nullable="false" />
+    <Property Name="ServiceId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" Nullable="false" />
+    <Property Name="ItemName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+    <Property Name="Unit" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Quantity" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+    <Property Name="Price" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+    <Property Name="DateCreate" Type="DateTime" Nullable="false" Precision="7" />
+    <NavigationProperty Name="Service" Relationship="UserManagerModel.FK_ReceiptServices_Services" FromRole="ReceiptService" ToRole="Service" />
+    <NavigationProperty Name="Receipt" Relationship="UserManagerModel.FK_ReceiptServices_Receipts" FromRole="ReceiptService" ToRole="Receipt" />
+  </EntityType>
+  <EntityType Name="ReceiptStatu">
+    <Key>
+      <PropertyRef Name="ReceiptStatusId" />
+    </Key>
+    <Property Name="ReceiptStatusId" Type="Int32" Nullable="false" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Receipts" Relationship="UserManagerModel.FK_Receipts_ReceiptStatus" FromRole="ReceiptStatu" ToRole="Receipt" />
+  </EntityType>
+  <EntityType Name="ReceiptType">
+    <Key>
+      <PropertyRef Name="ReceiptTypeId" />
+    </Key>
+    <Property Name="ReceiptTypeId" Type="Int32" Nullable="false" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" />
+    <Property Name="Alias" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Receipts" Relationship="UserManagerModel.FK_Receipts_ReceiptTypes" FromRole="ReceiptType" ToRole="Receipt" />
+  </EntityType>
+  <EntityType Name="Role">
+    <Key>
+      <PropertyRef Name="RoleId" />
+    </Key>
+    <Property Name="RoleId" Type="Int32" Nullable="false" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Permits" Relationship="UserManagerModel.FK_Permits_Roles" FromRole="Role" ToRole="Permit" />
+  </EntityType>
+  <Association Name="FK_Permits_Roles">
+    <End Type="UserManagerModel.Role" Role="Role" Multiplicity="1" />
+    <End Type="UserManagerModel.Permit" Role="Permit" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Role">
+        <PropertyRef Name="RoleId" />
+      </Principal>
+      <Dependent Role="Permit">
+        <PropertyRef Name="RoleId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="FullName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="UserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Password" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Email" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+    <Property Name="Phone" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+    <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="IsActive" Type="Boolean" />
+    <Property Name="DateCreate" Type="DateTime" Precision="7" />
+    <Property Name="IsDelete" Type="Boolean" />
+    <Property Name="DateDelete" Type="DateTime" Precision="7" />
+    <Property Name="ShopId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Permits" Relationship="UserManagerModel.FK_Permits_Users" FromRole="User" ToRole="Permit" />
+    <NavigationProperty Name="Shop" Relationship="UserManagerModel.FK_Users_Shops" FromRole="User" ToRole="Shop" />
+    <NavigationProperty Name="Receipts" Relationship="UserManagerModel.FK_Receipts_Users" FromRole="User" ToRole="Receipt" />
+  </EntityType>
+  <Association Name="FK_Permits_Users">
+    <End Type="UserManagerModel.User" Role="User" Multiplicity="1" />
+    <End Type="UserManagerModel.Permit" Role="Permit" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Permit">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="Service">
+    <Key>
+      <PropertyRef Name="ServiceId" />
+    </Key>
+    <Property Name="ServiceId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ServiceTypeId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" Nullable="false" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="true" />
+    <Property Name="Unit" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Alias" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ImportPrice" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+    <Property Name="Price" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+    <Property Name="DefaultQuantity" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+    <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Name="IsActive" Type="Boolean" Nullable="false" />
+    <Property Name="DateCreate" Type="DateTime" Precision="7" />
+    <Property Name="IsDelete" Type="Boolean" />
+    <Property Name="DateDelete" Type="DateTime" Precision="7" />
+    <Property Name="ShopId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="ReceiptServices" Relationship="UserManagerModel.FK_ReceiptServices_Services" FromRole="Service" ToRole="ReceiptService" />
+    <NavigationProperty Name="ServiceType" Relationship="UserManagerModel.FK_Services_ServiceTypes" FromRole="Service" ToRole="ServiceType" />
+    <NavigationProperty Name="Shop" Relationship="UserManagerModel.FK_Services_Shops" FromRole="Service" ToRole="Shop" />
+  </EntityType>
+  <Association Name="FK_ReceiptServices_Services">
+    <End Type="UserManagerModel.Service" Role="Service" Multiplicity="1" />
+    <End Type="UserManagerModel.ReceiptService" Role="ReceiptService" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Service">
+        <PropertyRef Name="ServiceId" />
+      </Principal>
+      <Dependent Role="ReceiptService">
+        <PropertyRef Name="ServiceId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="ServiceType">
+    <Key>
+      <PropertyRef Name="ServiceTypeId" />
+    </Key>
+    <Property Name="ServiceTypeId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" Nullable="false" />
+    <Property Name="IsActive" Type="Boolean" />
+    <Property Name="DateCreate" Type="DateTime" Precision="7" />
+    <Property Name="IsDelete" Type="Boolean" />
+    <Property Name="DateDelete" Type="DateTime" Precision="7" />
+    <Property Name="ShopId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Services" Relationship="UserManagerModel.FK_Services_ServiceTypes" FromRole="ServiceType" ToRole="Service" />
+    <NavigationProperty Name="Shop" Relationship="UserManagerModel.FK_ServiceTypes_Shops" FromRole="ServiceType" ToRole="Shop" />
+  </EntityType>
+  <EntityType Name="Shop">
+    <Key>
+      <PropertyRef Name="ShopId" />
+    </Key>
+    <Property Name="ShopId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Alias" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Phone" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+    <Property Name="Address" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="OwnerName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="OwnerPhone" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="OrderIndex" Type="Int32" />
+    <Property Name="IsActive" Type="Boolean" Nullable="false" />
+    <Property Name="DateCreate" Type="DateTime" Precision="7" />
+    <Property Name="IsDelete" Type="Boolean" Nullable="false" />
+    <Property Name="DateDelete" Type="DateTime" Precision="7" />
+    <NavigationProperty Name="Services" Relationship="UserManagerModel.FK_Services_Shops" FromRole="Shop" ToRole="Service" />
+    <NavigationProperty Name="ServiceTypes" Relationship="UserManagerModel.FK_ServiceTypes_Shops" FromRole="Shop" ToRole="ServiceType" />
+    <NavigationProperty Name="Users" Relationship="UserManagerModel.FK_Users_Shops" FromRole="Shop" ToRole="User" />
+    <NavigationProperty Name="Customers" Relationship="UserManagerModel.FK_Customers_Shops" FromRole="Shop" ToRole="Customer" />
+    <NavigationProperty Name="Receipts" Relationship="UserManagerModel.FK_Receipts_Shops" FromRole="Shop" ToRole="Receipt" />
+  </EntityType>
+  <Association Name="FK_Services_ServiceTypes">
+    <End Type="UserManagerModel.ServiceType" Role="ServiceType" Multiplicity="1" />
+    <End Type="UserManagerModel.Service" Role="Service" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ServiceType">
+        <PropertyRef Name="ServiceTypeId" />
+      </Principal>
+      <Dependent Role="Service">
+        <PropertyRef Name="ServiceTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Services_Shops">
+    <End Type="UserManagerModel.Shop" Role="Shop" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Service" Role="Service" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Shop">
+        <PropertyRef Name="ShopId" />
+      </Principal>
+      <Dependent Role="Service">
+        <PropertyRef Name="ShopId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ServiceTypes_Shops">
+    <End Type="UserManagerModel.Shop" Role="Shop" Multiplicity="0..1" />
+    <End Type="UserManagerModel.ServiceType" Role="ServiceType" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Shop">
+        <PropertyRef Name="ShopId" />
+      </Principal>
+      <Dependent Role="ServiceType">
+        <PropertyRef Name="ShopId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Users_Shops">
+    <End Type="UserManagerModel.Shop" Role="Shop" Multiplicity="0..1" />
+    <End Type="UserManagerModel.User" Role="User" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Shop">
+        <PropertyRef Name="ShopId" />
+      </Principal>
+      <Dependent Role="User">
+        <PropertyRef Name="ShopId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="Customer">
+    <Key>
+      <PropertyRef Name="CustomerId" />
+    </Key>
+    <Property Name="CustomerId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="FullName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Address" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Name="Phone" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
+    <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DateCreate" Type="DateTime" Nullable="false" Precision="7" />
+    <Property Name="IsDelete" Type="Boolean" Nullable="false" />
+    <Property Name="DateDelete" Type="DateTime" Precision="7" />
+    <Property Name="ShopId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Shop" Relationship="UserManagerModel.FK_Customers_Shops" FromRole="Customer" ToRole="Shop" />
+    <NavigationProperty Name="Receipts" Relationship="UserManagerModel.FK_Receipts_Customers" FromRole="Customer" ToRole="Receipt" />
+  </EntityType>
+  <Association Name="FK_Customers_Shops">
+    <End Type="UserManagerModel.Shop" Role="Shop" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Customer" Role="Customer" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Shop">
+        <PropertyRef Name="ShopId" />
+      </Principal>
+      <Dependent Role="Customer">
+        <PropertyRef Name="ShopId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="Receipt">
+    <Key>
+      <PropertyRef Name="ReceiptId" />
+    </Key>
+    <Property Name="ReceiptId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ReceiptNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DateCreate" Type="DateTime" Precision="7" />
+    <Property Name="ReceiptTypeId" Type="Int32" />
+    <Property Name="ReceiptStatusId" Type="Int32" />
+    <Property Name="CustomerId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="TotalMoney" Type="Decimal" Precision="18" Scale="2" />
+    <Property Name="TotalMoneyText" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Name="DateUpdate" Type="DateTime" Precision="7" />
+    <Property Name="UserId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ShopId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="GUID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Customer" Relationship="UserManagerModel.FK_Receipts_Customers" FromRole="Receipt" ToRole="Customer" />
+    <NavigationProperty Name="ReceiptStatu" Relationship="UserManagerModel.FK_Receipts_ReceiptStatus" FromRole="Receipt" ToRole="ReceiptStatu" />
+    <NavigationProperty Name="ReceiptType" Relationship="UserManagerModel.FK_Receipts_ReceiptTypes" FromRole="Receipt" ToRole="ReceiptType" />
+    <NavigationProperty Name="Shop" Relationship="UserManagerModel.FK_Receipts_Shops" FromRole="Receipt" ToRole="Shop" />
+    <NavigationProperty Name="User" Relationship="UserManagerModel.FK_Receipts_Users" FromRole="Receipt" ToRole="User" />
+    <NavigationProperty Name="ReceiptServices" Relationship="UserManagerModel.FK_ReceiptServices_Receipts" FromRole="Receipt" ToRole="ReceiptService" />
+  </EntityType>
+  <Association Name="FK_Receipts_Customers">
+    <End Type="UserManagerModel.Customer" Role="Customer" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Receipt" Role="Receipt" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="CustomerId" />
+      </Principal>
+      <Dependent Role="Receipt">
+        <PropertyRef Name="CustomerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Receipts_ReceiptStatus">
+    <End Type="UserManagerModel.ReceiptStatu" Role="ReceiptStatu" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Receipt" Role="Receipt" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ReceiptStatu">
+        <PropertyRef Name="ReceiptStatusId" />
+      </Principal>
+      <Dependent Role="Receipt">
+        <PropertyRef Name="ReceiptStatusId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Receipts_ReceiptTypes">
+    <End Type="UserManagerModel.ReceiptType" Role="ReceiptType" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Receipt" Role="Receipt" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ReceiptType">
+        <PropertyRef Name="ReceiptTypeId" />
+      </Principal>
+      <Dependent Role="Receipt">
+        <PropertyRef Name="ReceiptTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Receipts_Shops">
+    <End Type="UserManagerModel.Shop" Role="Shop" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Receipt" Role="Receipt" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Shop">
+        <PropertyRef Name="ShopId" />
+      </Principal>
+      <Dependent Role="Receipt">
+        <PropertyRef Name="ShopId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Receipts_Users">
+    <End Type="UserManagerModel.User" Role="User" Multiplicity="0..1" />
+    <End Type="UserManagerModel.Receipt" Role="Receipt" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Receipt">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ReceiptServices_Receipts">
+    <End Type="UserManagerModel.Receipt" Role="Receipt" Multiplicity="1" />
+    <End Type="UserManagerModel.ReceiptService" Role="ReceiptService" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Receipt">
+        <PropertyRef Name="ReceiptId" />
+      </Principal>
+      <Dependent Role="ReceiptService">
+        <PropertyRef Name="ReceiptId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

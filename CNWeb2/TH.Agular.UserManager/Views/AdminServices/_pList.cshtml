@@ -1,0 +1,137 @@
+﻿@{ 
+    var db = new TH.Agular.UserManager.Models.UserManagerEntities();
+
+    string keyWord = Request.QueryString["search"]??"";
+
+    TH.Agular.UserManager.Models.CurrentUser currentUser = new TH.Agular.UserManager.Models.CurrentUser();
+    if (Session["CurrentUser"] != null)
+    {
+        currentUser = Session["CurrentUser"] as TH.Agular.UserManager.Models.CurrentUser;
+    }
+    var listServiceTypes = db.ServiceTypes.Where(x => x.IsDelete != true && (keyWord == "" || (keyWord != "" && x.Name.Contains(keyWord)))).OrderBy(x => x.Shop.OrderIndex).ThenBy(x => x.OrderIndex).ToList();
+    var listServices = db.Services.Where(x => x.IsDelete != true && (keyWord == "" || (keyWord != "" && x.Name.Contains(keyWord)))).OrderBy(x => x.Shop.OrderIndex).ThenBy(x => x.OrderIndex).ToList();
+
+    if (currentUser.Permits.Where(x => x.RoleId == 2).ToList().Any())
+    {
+        listServiceTypes = listServiceTypes.Where(x => x.ShopId == currentUser.ShopId).ToList();
+        listServices = listServices.Where(x => x.ShopId == currentUser.ShopId).ToList();
+    }
+
+    var _domain = (Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/");
+    var urlIndex = Url.Action("Index", "AdminServices");
+
+
+}
+
+<div class="row">
+    <div class="col-md-12" >
+        <div class="row">
+            <div class="col-md-4" style="margin-bottom:10px;">
+                <form action="" method="get">
+                    <input class="form-control" type="text" id="txtSearch" name="search" placeholder="Từ khóa...">                    
+                </form>
+
+            </div>
+            <div class="col-md-8" style="margin-bottom:10px;">
+                
+                <a href="#!/new" class="btn btn-success pull-right" type="button"><i class="fa fa-fw fa-lg fa-plus"></i> Thêm mới</a>
+            </div>        
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row" ng-app="myApp">
+    <div class="col-md-12" ng-controller="myListController">        
+        <div class="tile">
+            <table class="table table-sm" id="myTable">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên chi phí</th>
+                        <th>Đơn vị tính</th>
+                        <th>Ký hiệu</th>
+                        <th>Giá nhập</th>
+                        <th>Giá bán</th>
+                        <th>Hoạt động</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody >
+            @foreach (var serviceType in listServiceTypes)
+            {
+                <tr>
+                    <td colspan="8" style="background-color:#ccc;">
+                        <span>@serviceType.Name</span> - <span>@serviceType.Shop.Name</span>
+                    </td>
+                </tr>
+                foreach (var service in serviceType.Services.Where(x => x.IsDelete != true).ToList())
+                {
+                    <tr>
+                        <td>@service.OrderIndex</td>
+                        <td>
+                            <a href="#!/edit/@service.ServiceId">
+                                @service.Name
+                            </a>
+                        </td> 
+                        <td>
+                            @service.Unit
+                        </td>
+                        <td>
+                            @service.Alias
+                        </td>
+                        <td>
+                            @service.ImportPrice.ToString("#,#")
+                        </td>
+                        <td>
+                            @service.Price.ToString("#,#")
+                        </td>
+                        <td>
+                            <input type="checkbox" disabled="disabled" @((service.IsActive)?"checked='checked'":"") />
+                        </td>
+                        <td>
+                            <div class="pull-right">
+                                <a href="#!/edit/@service.ServiceId" class="btn btn-primary btn-sm" style="color:white;"><i class="fa fa-pencil"></i> Sửa</a>
+                                <button class="btn btn-danger btn-sm" ng-click="btnDeleteClick('@(service.ServiceId)', '@(service.Name)')"><i class="fa fa-trash"></i> Xóa</button>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+
+            }
+
+        </tbody>
+                @*<tbody >
+                    <tr  ng-repeat="x in listServices | filter : txtSearch">
+                        <td>{{x.OrderIndex}}</td>
+                        <td>
+                            <a href="#!/edit/{{x.ServiceId}}">
+                                {{x.Name}}   
+                            </a>
+                        </td>
+                        <td>
+                            {{x.Alias}}
+                        </td>
+                        <td>
+                            {{x.ImportPrice}}
+                        </td>
+                        <td>
+                            {{x.Price}}
+                        </td>
+                        <td><input type="checkbox" ng-model="x.IsActive" disabled="disabled"/></td>
+                        <td>
+                            <div class="pull-right">
+                                <a href="#!/edit/{{x.ServiceId}}" class="btn btn-primary btn-sm" style="color:white;"><i class="fa fa-pencil"></i> Sửa</a>
+                                <button class="btn btn-danger btn-sm" ng-click="btnDeleteClick(x.ServiceId)"><i class="fa fa-trash"></i> Xóa</button>
+                            </div>
+
+                        </td>
+                    </tr>
+                    
+                </tbody>*@
+            </table>
+            <br />
+            <div class="clearfix"></div>
+        </div>    
+    </div>        
+</div>            

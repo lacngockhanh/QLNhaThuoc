@@ -1,0 +1,42 @@
+﻿.app-header {
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+    box-shadow: 2px 2px 8px black;
+}
+
+.app-header__logo {
+    font-family: Arial;
+    font-size: 16px;
+}
+
+.app-nav, .app-header, .app-header__logo {
+    background-color: #002e08;
+}
+
+.app-sidebar {
+    background-color: #002e08;
+    border-right: 1px solid white;
+    border-top: 1px solid white;
+    box-shadow: 3px 3px 5px gray;
+}
+
+.app-sidebar__toggle:active, .app-sidebar__toggle:hover {
+    background-color: green;
+}
+
+.app-menu__item:hover {
+    border-left: 3px solid green;
+}
+.table {
+    margin-bottom:0px;
+}
+.table thead th {
+    background-color:#c2c2c2;
+}
+
+.table a {
+    font-weight:bold;
+    color: green;
+}
+
+

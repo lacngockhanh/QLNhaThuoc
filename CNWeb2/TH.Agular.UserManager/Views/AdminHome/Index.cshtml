@@ -1,0 +1,90 @@
+﻿
+@{
+    ViewBag.Title = "PHẦN MỀM QUẢN LÝ BÁN HÀNG";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+
+    var db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    var _dateFrom = Request.QueryString["from"];
+    var _dateTo = Request.QueryString["to"];
+    DateTime dateFrom = DateTime.Parse(DateTime.Now.ToShortDateString());
+    DateTime dateTo = DateTime.Parse(DateTime.Now.ToShortDateString());
+    string dateFromToShortDateString = dateFrom.ToShortDateString();
+    string dateToToShortDateString = dateTo.ToShortDateString();
+    DateTime dateToAddDay1 = dateTo.AddDays(1);
+    try
+    {
+        dateFrom = DateTime.Parse(_dateFrom);
+        dateFromToShortDateString = dateFrom.ToShortDateString();
+    }
+    catch { }
+    try
+    {
+        dateTo = DateTime.Parse(_dateTo);
+        dateToToShortDateString = dateTo.ToShortDateString();
+        dateToAddDay1 = dateTo.AddDays(1);
+
+    }
+    catch { }
+    if (Session["CurrentUser"] == null)
+    {
+        Response.Redirect(Url.Action("Login", "AdminHome"));
+    }
+    TH.Agular.UserManager.Models.CurrentUser currentUser = new TH.Agular.UserManager.Models.CurrentUser();
+    currentUser = Session["CurrentUser"] as TH.Agular.UserManager.Models.CurrentUser;
+
+
+    var listReceipts = db.Receipts.Where(x => x.ReceiptStatusId != 5 && x.ReceiptStatusId != 5 && x.DateCreate >= dateFrom && x.DateCreate < dateToAddDay1 && x.ShopId == currentUser.ShopId).ToList();
+
+    string numofWaitReceipts = listReceipts.Where(x => x.ReceiptStatusId == 1).Count().ToString("#,#");
+    string totalMoney = String.Format("{0:n0}",listReceipts.Where(x => x.ReceiptStatusId == 3 && (x.ReceiptTypeId == 1 || x.ReceiptTypeId == 3)).Sum(x => x.TotalMoney));
+
+
+
+    ViewBag.Title = (currentUser.ShopName??"").ToUpper();
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <h5>Chào mừng!</h5>
+            <p>
+                <strong>@currentUser.FullName</strong> đã đăng nhập thành công. <br/>
+                Tài khoản của bạn được phân quyền 
+                
+                    @foreach(var permit in currentUser.Permits)
+                    {
+                        <strong>@permit.Role.Name</strong>; 
+                    }
+                
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <a href="@Url.Action("Index", "AdminReceipts")">
+            <div class="widget-small info coloured-icon">
+                <i class="icon fa fa-files-o fa-3x"></i>
+                <div class="info">
+                    <h4>Hóa đơn chờ xác nhận</h4>
+                    <p><b>@numofWaitReceipts</b></p>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+    <div class="col-md-6">
+        <a href="@Url.Action("Index", "AdminReceipts")">
+            <div class="widget-small primary coloured-icon">
+                <i class="icon fa fa-star fa-3x"></i>
+                <div class="info">
+                    <h4>Doanh thu hôm nay</h4>
+                    <p><b>@totalMoney đồng</b></p>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+</div>
+
+
+
+@*<script src="~/Scripts/AdminUsers/Index.js?v=@Guid.NewGuid()"></script>*@

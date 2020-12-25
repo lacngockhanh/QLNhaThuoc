@@ -1,0 +1,92 @@
+﻿@{ 
+    TH.Agular.UserManager.Models.CurrentUser currentUser = new TH.Agular.UserManager.Models.CurrentUser();
+    currentUser = Session["CurrentUser"] as TH.Agular.UserManager.Models.CurrentUser;
+    bool isAdmin = false;
+    if (currentUser.Permits.Where(x => x.RoleId == 1 || x.RoleId == 2).Any())
+    {
+        isAdmin = true;
+    }
+}
+@*<script src="~/Content/admin/js/plugins/select2.min.js"></script>*@
+<div class="row">
+    <div class="col-md-12">
+        <a href="#!/list" class="btn btn-secondary"><i class="fa fa-list"></i> Trở về danh sách</a>
+    </div>
+</div>
+<br />
+<div class="row" ng-app="myApp">              
+    <div class="col-md-12" ng-controller="myDetailController">
+        <div class="tile">
+            <h3 class="tile-title">Thông tin tài khoản</h3>
+            <div class="tile-body">
+                <form class="form-horizontal">
+                    <input type="hidden" ng-model="UserId" placeholder="" />
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Họ tên:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="FullName" placeholder="" @(!isAdmin?"readonly='readonly'":"")>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Tên đăng nhập:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="UserName" placeholder="" id="txtUserName" @(!isAdmin?"readonly='readonly'":"")>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Mật khẩu:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="password" id="txtPassword" ng-model="Password">                                                        
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Email:</label>
+                        <div class="col-md-8">
+                            <input class="form-control col-md-8" type="email" ng-model="Email" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Điện thoại:</label>
+                        <div class="col-md-8">
+                            <input class="form-control col-md-8" type="text" ng-model="Phone" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Mô tả:</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" rows="4" ng-model="Description" placeholder=""></textarea>
+                        </div>
+                    </div> 
+                    <div class="form-group row">
+                        <label class="control-label col-md-3"></label>
+                        <div class="col-md-8">
+                            <div class="animated-checkbox" >
+                                <label>
+                                    <input type="checkbox" ng-model="IsActive" id="checkboxIsActive" checked="checked" @(!isAdmin? "disabled=''" : "")><span class="label-text"> Cho phép đăng nhập</span>
+                                </label>
+                            </div>                                        
+                        </div>
+                    </div> 
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Thuộc cửa hàng:</label>
+                        <div class="col-md-8">
+                            <select class="form-control select2" id="selectShop" style="width:100%;" ng-model="ShopId" @(!isAdmin? "disabled='disabled'" : "")>
+                                <option value="">- chọn cửa hàng -</option>
+                                <option ng-repeat="shop in shops" value="{{shop.ShopId}}" ng-selected="shop.ShopId == ShopId">{{shop.Name}}</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+                </form>
+            </div>
+            <div class="tile-footer">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-3">
+                        <button class="btn btn-primary" type="button" ng-click="btnSaveClick()"><i class="fa fa-fw fa-lg fa-check-circle"></i>Đồng ý</button>&nbsp;&nbsp;&nbsp;
+                        <a class="btn btn-secondary" href="#!/list"><i class="fa fa-fw fa-lg fa-times-circle"></i>Hủy bỏ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

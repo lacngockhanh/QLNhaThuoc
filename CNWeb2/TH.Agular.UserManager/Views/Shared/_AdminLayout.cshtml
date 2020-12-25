@@ -1,0 +1,128 @@
+﻿@{ 
+    TH.Agular.UserManager.Models.CurrentUser currentUser = new TH.Agular.UserManager.Models.CurrentUser();
+    if (Session["CurrentUser"] == null)
+    {
+        Response.Redirect(Url.Action("Login", "AdminHome"));
+    } else
+    {
+        currentUser = Session["CurrentUser"] as TH.Agular.UserManager.Models.CurrentUser;
+        if (!currentUser.Permits.Any()) {
+            Response.Redirect(Url.Action("UserNotPermit", "AdminHome"));
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Main CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Content/admin/css/main.css">
+    <!-- Font-icon css-->
+
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/admin/css/custom.css" rel="stylesheet" />
+    <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/angular-route.js"></script>
+    <script src="~/Scripts/jquery-3.5.1.min.js"></script>
+    <script src="~/Content/admin/js/plugins/select2.min.js"></script>
+    <script src="~/Content/admin/js/plugins/bootstrap-datepicker.min.js"></script>
+    <script src="~/Content/admin/js/plugins/bootstrap-notify.min.js"></script>
+    <script src="~/Scripts/jqueryMask/jquery.mask.min.js"></script>
+
+    <script>        
+        var app = angular.module("myApp", ["ngRoute"]);
+        var _domain = '@(Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/")';
+    </script>
+    <style>
+        .app-header, .app-header__logo , .app-nav {
+            background-color: #0050a6;
+        }
+        .app-sidebar {
+            background-color: #0050a6;
+        }
+    </style>
+</head>
+
+<body class="app sidebar-mini">
+<div id="divLoading" style="display: none; z-index:10000000; position:fixed; top: 0px; left:0px; color:white; opacity: 0.8; background-color:black; width:100%; height:100%;">
+    <p style="margin-top:120px; color:white; text-align:center;">Đang xử lý, vui lòng chờ...</p>
+</div>
+    <script>
+        function showLoading() {
+            $("#divLoading").show();
+        }
+        function hideLoading() {
+            $("#divLoading").hide();
+        }
+        //showLoading();
+    </script>
+    <!-- Navbar-->
+    <header class="app-header">
+
+        <a class="app-header__logo" href="@Url.Action("Index", "AdminHome")">Admin Control Panel</a>
+        <!-- Sidebar toggle button--><a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
+        <!-- Navbar Right Menu-->
+        <ul class="app-nav">
+
+
+            <!-- User Menu-->
+            <li class="dropdown">
+
+                <a class="app-nav__item" href="#" data-toggle="dropdown"><img class="app-sidebar__user-avatar" src="~/Content/admin/images/no-avatar.png" alt="User Image" style="height:20px; position:relative;">  @currentUser.FullName</a>
+                <ul class="dropdown-menu settings-menu dropdown-menu-right">
+                    <li><a class="dropdown-item" href="@(Url.Action("Index","AdminUsers") + "#!/edit/" + currentUser.UserId)"><i class="fa fa-user fa-lg"></i> Thông tin cá nhân</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("Logout", "AdminHome")"><i class="fa fa-sign-out fa-lg"></i> Thoát</a></li>
+                </ul>
+            </li>
+        </ul>
+    </header>
+    <!-- Sidebar menu-->
+    <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+    <aside class="app-sidebar">
+        <ul class="app-menu">
+            @if (currentUser != null)
+            {
+                if (currentUser.Permits.Where(x => (x.RoleId == 1 || x.RoleId == 3) && x.UserId == currentUser.UserId).ToList().Any())
+                {
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "Home")"><i class="app-menu__icon fa fa-home"></i><span class="app-menu__label">Trang chủ</span></a></li>
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminReceipts")"><i class="app-menu__icon fa fa-sticky-note"></i><span class="app-menu__label">Hóa đơn</span></a></li>
+                }
+                if (currentUser.Permits.Where(x => (x.RoleId == 1 || x.RoleId == 2) && x.UserId == currentUser.UserId).ToList().Any())
+                {
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminUsers")"><i class="app-menu__icon fa fa-users"></i><span class="app-menu__label">Tài khoản</span></a></li>
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminPermits")"><i class="app-menu__icon fa fa-key"></i><span class="app-menu__label">Phân quyền</span></a></li>
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminServiceTypes")"><i class="app-menu__icon fa fa-tags"></i><span class="app-menu__label">Loại chi phí</span></a></li>
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminServices")"><i class="app-menu__icon fa fa-tag"></i><span class="app-menu__label">Chi phí</span></a></li>
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminCustomers")"><i class="app-menu__icon fa fa-user-o"></i><span class="app-menu__label">Khách hàng</span></a></li>
+                }
+                if (currentUser.Permits.Where(x => x.RoleId == 1 && x.UserId == currentUser.UserId).ToList().Any())
+                {
+                    <li><a class="app-menu__item" href="@Url.Action("Index", "AdminShops")"><i class="app-menu__icon fa fa-hospital-o"></i><span class="app-menu__label">Cửa hàng</span></a></li>
+                }   
+            }
+                
+           
+            
+        </ul>
+    </aside>
+    <main class="app-content">
+        <div class="app-title">
+            <div>
+                <h1>@ViewBag.Title</h1>
+            </div>
+
+        </div>
+
+        @RenderBody()
+
+    </main>
+
+    @*<script src="~/Scripts/jquery-3.5.1.min.js"></script>*@
+    <script src="~/Content/admin/js/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Content/admin/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewBag.Title = "Danh mục tài khoản";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div ng-app="myApp">
+    <div ng-view>
+
+    </div>       
+</div>
+
+
+<script>
+
+    var urlList = '@Url.Action("_pList", "AdminUsers")';
+    var urlDetail = '@Url.Action("_pDetail", "AdminUsers")';
+    var app = angular.module("myApp", ["ngRoute"]);
+    var _domain = '@(Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/")';
+
+</script>
+
+<script src="~/Scripts/AdminUsers/Index.js?v=@Guid.NewGuid()"></script>

@@ -1,0 +1,51 @@
+﻿
+@{
+    ViewBag.Title = "Shops";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+
+    TH.Agular.UserManager.Models.UserManagerEntities db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    var listShops = db.Shops.Where(x => x.IsActive == true && x.IsDelete != true).OrderBy(x => x.OrderIndex).ToList();
+}
+
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <h5 class="card-header text-white bg-primary">Danh sách cửa hàng</h5>
+            <div class="card-body">
+                <table style="width:100%;">
+                    @foreach (var shop in listShops)
+                    {
+                        <tr>
+                            <td style="width:40%; vertical-align:top;">.
+                                <a href="@Url.Action("ShopDetail", "Home", new { @id = shop.ShopId})">
+                                    <img src="@shop.Image" style="width:80%; margin:20px; margin-top:0px; padding:5px; border:1px solid #ccc;" />
+                                </a>                                
+                            </td>
+                            <td style="vertical-align:top;">
+                                <h5 class="card-title"><a href="@Url.Action("ShopDetail", "Home", new { @id = shop.ShopId})">@shop.Name</a></h5>
+                                <p class="card-text">
+                                    <strong>Địa chỉ: </strong> @shop.Address
+                                    <br />
+                                    <strong>Điện thoại: </strong> @shop.Phone
+                                </p>
+                                <a href="@Url.Action("ShopDetail", "Home", new { @id = shop.ShopId})" class="btn btn-success">Chi tiết</a>
+
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+</div>
+

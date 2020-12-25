@@ -1,0 +1,51 @@
+﻿<div class="row">
+    <div class="col-md-12" >
+        <div class="row">
+            <div class="col-md-4" style="margin-bottom:10px;">
+                <input class="form-control" type="text" placeholder="Từ khóa..." ng-model="txtSearch">
+            </div>
+            <div class="col-md-8" style="margin-bottom:10px;">
+                <button class="btn btn-outline-secondary" type="button"><i class="fa fa-fw fa-lg fa-search"></i>Tìm kiếm</button>
+                <a href="#!/new" class="btn btn-success pull-right" type="button"><i class="fa fa-fw fa-lg fa-plus"></i> Thêm mới</a>
+            </div>        
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row" ng-app="myApp">
+    <div class="col-md-12" ng-controller="myListController">        
+        <div class="tile">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Họ và tên</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Cửa hàng</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody >
+                    <tr  ng-repeat="x in listUsers | filter : txtSearch">
+                        <td>
+                            <a href="#!/edit/{{x.UserId}}">
+                                {{x.FullName}}   
+                            </a>
+                        </td>
+                        <td>{{x.UserName}}</td>
+                        <td>{{ x.ShopName }}</td>
+                        <td>
+                            <div class="pull-right">
+                                <a href="#!/edit/{{x.UserId}}" class="btn btn-primary btn-sm" style="color:white;"><i class="fa fa-pencil"></i> Sửa</a>
+                                <button class="btn btn-danger btn-sm" ng-click="btnDeleteClick(x.UserId)"><i class="fa fa-trash"></i> Xóa</button>
+                            </div>
+
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            <br />
+            <div class="clearfix"></div>
+        </div>    
+    </div>        
+</div>            

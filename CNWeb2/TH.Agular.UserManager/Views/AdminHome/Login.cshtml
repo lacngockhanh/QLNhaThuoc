@@ -1,0 +1,75 @@
+﻿@{ 
+    var msg = "";
+    bool loginSuccess = true;
+    try
+    {
+        msg = Request.QueryString["msg"];
+        if (msg == "false")
+        {
+            loginSuccess = false;
+        }
+    }
+    catch { }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Main CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Content/admin/css/main.css">
+    <!-- Font-icon css-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Đăng nhập</title>
+</head>
+<body>
+    <section class="material-half-bg">
+        <div class="cover"></div>
+    </section>
+    <section class="login-content">
+        <div class="logo">
+            <h1>Admin Control Panel</h1>
+        </div>
+        <div class="login-box">
+            <form class="login-form" method="post" action="@Url.Action("ActionLogin", "AdminHome")">
+                <h3 class="login-head"><i class="fa fa-lg fa-fw fa-key"></i>HỆ THỐNG</h3>
+                <div class="form-group">
+                    <label class="control-label">Tài khoản</label>
+                    <input class="form-control" type="text" name="UserName" placeholder="" autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Mật khẩu</label>
+                    <input class="form-control" type="password" name="Password" placeholder="">
+                </div>
+                
+                <div class="form-group btn-container">
+                    <button class="btn btn-primary btn-block"><i class="fa fa-sign-in fa-lg fa-fw"></i>ĐĂNG NHẬP</button>
+                </div>
+                @if (!loginSuccess)
+                {
+                    <div class="form-group">
+                        <br />
+                        <span style="color:red">Tài khoản hoặc mật khẩu không đúng</span>
+                    </div>
+                }                
+            </form>
+
+        </div>
+    </section>
+    <!-- Essential javascripts for application to work-->
+    <script src="~/Content/admin/js/jquery-3.3.1.min.js"></script>
+    <script src="~/Content/admin/js/popper.min.js"></script>
+    <script src="~/Content/admin/js/bootstrap.min.js"></script>
+    @*<script src="~/Content/admin/js/main.js"></script>*@
+    <!-- The javascript plugin to display page loading on top-->
+    @*<script src="~/Content/admin/js/plugins/pace.min.js"></script>*@
+    <script type="text/javascript">
+      //// Login Page Flipbox control
+      //$('.login-content [data-toggle="flip"]').click(function() {
+      //	$('.login-box').toggleClass('flipped');
+      //	return false;
+      //});
+    </script>
+</body>
+</html>

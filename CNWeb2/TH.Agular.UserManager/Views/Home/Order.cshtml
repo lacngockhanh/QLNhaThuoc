@@ -1,0 +1,158 @@
+﻿
+@{
+    ViewBag.Title = "Order";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+
+    TH.Agular.UserManager.Models.Cart cart = new TH.Agular.UserManager.Models.Cart();
+    cart.ListCartItem = new List<TH.Agular.UserManager.Models.CartItem>();
+    if (Session["Cart"] != null)
+    {
+        cart = Session["Cart"] as TH.Agular.UserManager.Models.Cart;
+    }
+    int count = 1;
+    string temp = "";
+    decimal totalMoney = 0;
+}
+
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+    <div class="col-md-8">
+        <a href="@Url.Action("Cart", "Home")" class="btn btn-outline-primary" onclick="history.back()"><i class="fa fa-arrow-circle-left"></i> Trở lại</a>
+        <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnFinish"> Hoàn tất <i class="fa fa-arrow-circle-right"></i></a>
+        <br /><br />
+    </div>
+    <div class="col-md-2">
+
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-8">
+        <h3 style="text-align:center;">THÔNG TIN ĐẶT HÀNG</h3>
+        <hr />
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group row">
+                    <label class="control-label col-md-2">Họ tên:</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="text" placeholder="" id="txtFullName">
+                    </div>                    
+                </div>
+                <div class="form-group row">
+                    <label class="control-label col-md-2">Địa chỉ:</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="text" placeholder="" id="txtAddress">
+                    </div>
+                </div>                
+                <div class="form-group row">
+                    <label class="control-label col-md-2">Điện thoại:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" type="text" placeholder="" id="txtPhone">
+                    </div>
+                    <label class="control-label col-md-2">Email:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" type="text" placeholder="" id="txtEmail">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="control-label col-md-2">Ghi chú:</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="text" placeholder="" id="txtDescription">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            
+            @*<h5 class="card-header text-white bg-primary">Đơn đặt hàng</h5>*@
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tile" style="min-height:350px;">
+                            
+                            <table class="table table-sm" id="myTable">
+                                <thead>
+                                    <tr>
+                                        <th>Tên thuốc</th>
+                                        <th>Đơn vị tính</th>
+                                        <th>Số lượng</th>
+                                        <th style="text-align:right;">Giá</th>                                        
+                                        <th>Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in cart.ListCartItem.OrderBy(x => x.ShopId).ToList())
+                                    {
+                                        totalMoney += (item.Price * item.Quantity);
+                                        if (temp != item.ShopId)
+                                        {
+                                            count = 1;
+                                            temp = item.ShopId;
+                                            if (count == 1)
+                                            {
+                                                <tr>
+                                                    <td colspan="6" style="background-color:#ccc; font-weight:bold;">@item.ShopName</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                            count++;
+                                        }
+
+                                        <tr>
+                                            <td>
+
+                                                @item.Name
+
+                                            </td>
+                                            <td>
+                                                @item.Unit
+                                            </td>
+                                            <td>
+                                                @item.Quantity
+                                            </td>
+                                            <td style="text-align:right;">
+                                                @item.Price.ToString("#,#")
+                                            </td>
+
+                                            <td style="text-align:right;">
+                                                @((item.Price * item.Quantity).ToString("#,#"))
+                                            </td>
+                                            
+                                        </tr>
+                                    }
+
+                                </tbody>
+                                <tr>
+                                    <td colspan="4" style="font-weight:bold;">Tổng tiền: </td>
+                                    <td style="text-align:right; font-weight:bold; color:maroon; font-size:16px;">
+                                           @totalMoney.ToString("#,#")                                        
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <br />
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+</div>
+<script src="~/Scripts/Home/Order.js?v=@(Guid.NewGuid().ToString())"></script>

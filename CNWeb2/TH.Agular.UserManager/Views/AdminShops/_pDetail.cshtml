@@ -1,0 +1,129 @@
+﻿<style>
+    #divSelectImage:hover{
+        cursor:pointer;
+    }
+</style>
+<script>
+    var _urlNoImage = '@(Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + Url.Content("~/Content/admin/images/no-image.png"))';
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <a href="#!/list" class="btn btn-secondary"><i class="fa fa-list"></i> Trở về danh sách</a>
+    </div>
+</div>
+<br />
+<div class="row" ng-app="myApp">              
+    <div class="col-md-12" ng-controller="myDetailController">
+        <div class="tile">
+            <h3 class="tile-title">Thông tin cửa hàng</h3>
+            <div class="tile-body">
+                <form class="form-horizontal">
+                    <input type="hidden" ng-model="ShopId" placeholder="" />
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Tên cửa hàng:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Name" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Ký hiệu:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Alias" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Hình ảnh:</label>
+                        <div class="col-md-8">
+                            <div class="row">
+                                
+                                
+                                <div class="col-md-8">
+                                    <input type="hidden" ng-model="Image" placeholder="" id="hiddenImageSrc" value="../../Content/admin/images/no-image.png">
+                                    <button class="btn btn-primary" id="btnSelectImage">
+                                        <i class="fa fa-plus"></i>
+                                        Chọn ảnh
+                                    </button>
+                                    <button class="btn btn-default" id="btnRemoveImage">
+                                        <i class="fa fa-plus"></i>
+                                        Gỡ bỏ
+                                    </button>
+                                    <input type="file" id="fileUploadImage" style="display:none;" />
+                                    
+                                </div>                                                                           
+                            </div>                            
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-3">
+                            
+                        </div>
+                        <div class="col-8">
+                            <div class="card mb-3">
+                                <div class="card-body" id="divSelectImage">
+                                    <div class="card-blockquote" style="border-color:#ccc;" id="">
+                                        <img src="../../Content/admin/images/no-image.png" id="imgShowImage" style="max-width:100%;" />                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Mô tả:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Description" placeholder=""/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Địa chỉ:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Address" placeholder="" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Điện thoại:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Phone" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Người đại diện:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="OwnerName" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Điện thoại người đại diện:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="OwnerPhone" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Số thứ tự:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="OrderIndex" placeholder="">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="control-label col-md-3"></label>
+                        <div class="col-md-8">
+                            <div class="animated-checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="IsActive" id="checkboxIsActive" checked="checked"><span class="label-text"> Cho phép hoạt động</span>
+                                </label>
+                            </div>                                        
+                        </div>
+                    </div> 
+                </form>
+            </div>
+            <div class="tile-footer">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-3">
+                        <button class="btn btn-primary" type="button" ng-click="btnSaveClick()"><i class="fa fa-fw fa-lg fa-check-circle"></i>Đồng ý</button>&nbsp;&nbsp;&nbsp;
+                        <a class="btn btn-secondary" href="#!/list"><i class="fa fa-fw fa-lg fa-times-circle"></i>Hủy bỏ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

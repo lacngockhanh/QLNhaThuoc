@@ -1,0 +1,143 @@
+﻿
+@{
+    ViewBag.Title = "Cart";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+
+    TH.Agular.UserManager.Models.Cart cart = new TH.Agular.UserManager.Models.Cart();
+    cart.ListCartItem = new List<TH.Agular.UserManager.Models.CartItem>();
+    if (Session["Cart"] != null) {
+        cart = Session["Cart"] as TH.Agular.UserManager.Models.Cart;
+    }
+    int count = 1;
+    string temp = "";
+    decimal totalMoney = 0;
+}
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+    <div class="col-md-8">
+        <a href="javascript:void(0)" class="btn btn-outline-primary" onclick="history.back()"><i class="fa fa-arrow-circle-left"></i> Trở lại</a>
+        <a href="@Url.Action("Order", "Home")" class="btn btn-primary pull-right"> Đặt hàng <i class="fa fa-arrow-circle-right"></i></a>
+        
+        <a href="@Url.Action("DestroyCart", "Home")" onclick="return confirm('Bạn thật sự muốn hủy giỏ hàng ?');" class="btn btn-danger pull-right" style="margin-right:5px;"><i class="fa fa-remove"></i> Hủy giỏ hàng</a>
+        <br /><br />
+    </div>
+    <div class="col-md-2">
+
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <h5 class="card-header text-white bg-primary">Giỏ hàng của bạn</h5>
+            <div class="card-body">
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tile" style="min-height:350px;">
+                            <table class="table table-sm" id="myTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên thuốc</th>
+                                        <th>Đơn vị tính</th>
+                                        <th>Số lượng</th>
+                                        <th>Giá</th>
+                                        <th>Thành tiền</th>
+                                        @*<th>Hoạt động</th>*@
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in cart.ListCartItem.OrderBy(x => x.ShopId))
+                                    {
+                                        totalMoney += (item.Quantity * item.Price);
+                                        if (temp != item.ShopId)
+                                        {
+                                            count = 1;
+                                            temp = item.ShopId;
+                                            if (count == 1)
+                                            {
+                                                <tr>
+                                                    <td colspan="7" style="background-color:#ccc; font-weight:bold;">@item.ShopName</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                            count++;
+                                        }
+                                    <tr>
+                                        <td>@item.OrderIndex</td>
+                                        <td>
+                                            
+                                                @item.Name
+                                            
+                                        </td>
+                                        <td>
+                                            @item.Unit
+                                        </td>
+
+                                        <td>
+                                            <form method="post" action="@Url.Action("UpdateQuantity", "Home")">
+                                                <input type="number" class="form-control pull-left" style="width:100px; text-align:center;" value="@item.Quantity.ToString("#,#")" name="Quantity" />
+                                                <input type="hidden" name="ServiceId" value="@item.ServiceId" />
+                                                <button type="submit" class="btn btn-outline-primary pull-left" style="margin:5px;"><i class="fa fa-check"></i></button>
+                                            </form>
+                                            
+                                        </td>
+
+                                        <td>
+                                            
+                                            <input type="text" readonly="readonly" class="form-control" style="width:120px; text-align:right;" value="@item.Price.ToString("#,#")" />
+                                        </td>
+                                        <td>
+                                            <input type="text" readonly="readonly" class="form-control" style="width:120px; text-align:right;" value="@((item.Quantity * item.Price).ToString("#,#"))" />
+                                        </td>                                        
+                                        <td>
+                                            <div class="pull-right">
+                                                <form method="post" action="@Url.Action("RemoveItem", "Home")">
+                                                    <input type="hidden" name="ServiceId" value="@item.ServiceId" />
+                                                    <button class="btn btn-outline-danger" onclick="return confirm('Bạn thật sự muốn xóa ?');"><i class="fa fa-remove"></i> Xóa</button>                                
+                                                </form>
+                                                
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                    }
+
+                                </tbody>
+                                <tr>
+                                    <td colspan="5">
+                                        Tổng tiền: 
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="@totalMoney.ToString("#,#")" style="width:120px; text-align:right; font-weight:bold; color:maroon;"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+
+                            </table>
+                            <br />
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+</div>
+

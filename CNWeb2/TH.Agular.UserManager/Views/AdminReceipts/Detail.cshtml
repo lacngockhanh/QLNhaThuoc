@@ -1,0 +1,293 @@
+﻿@model TH.Agular.UserManager.Models.Receipt
+@{
+    ViewBag.Title = "Hóa đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+
+    TH.Agular.UserManager.Models.CurrentUser currentUser = new TH.Agular.UserManager.Models.CurrentUser();
+    if (Session["CurrentUser"] == null)
+    {
+        Response.Redirect(Url.Action("Login", "AdminHome"));
+    }
+    else
+    {
+        currentUser = Session["CurrentUser"] as TH.Agular.UserManager.Models.CurrentUser;
+        if (!currentUser.Permits.Any())
+        {
+            Response.Redirect(Url.Action("UserNotPermit", "AdminHome"));
+        }
+    }
+    TH.Agular.UserManager.Models.UserManagerEntities db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    var listServiceTypes = db.ServiceTypes.Where(x => x.IsDelete != true && x.IsActive == true && x.ShopId == currentUser.ShopId).OrderBy(x => x.OrderIndex).ToList();
+    var listServices = db.Services.Where(x => x.IsDelete != true && x.IsActive == true && x.ShopId == currentUser.ShopId).OrderBy(x => x.OrderIndex).ToList();
+    var receiptId = ViewContext.RouteData.Values["id"];
+
+    
+}
+<style>
+    .modal-lg {
+        max-width: 80%;
+        margin-left: 10%;
+        min-height:500px;
+    }
+    .modal-body {
+        min-height:350px;
+    }
+</style>
+<script>
+    var receiptId = '@receiptId';
+    var currentUserId = '@currentUser.UserId';
+    var currentUserFullName = '@currentUser.FullName';
+</script>
+<div ng-app="myApp">
+    <div class="row" ng-controller="myReceiptDetailController">
+        <div class="col-md-12">
+            <div class="tile">
+                <section class="invoice">
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h2 class="page-header"><i class="fa fa-edit"></i> HÓA ĐƠN BÁN LẺ</h2>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-right"> Số: @Model.ReceiptNumber  |  Ngày: @Model.DateCreate</h5>
+                        </div>
+                    </div>
+                    <div class="invoice-info">
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Họ tên:</label>
+                            <div class="col-md-8">
+                                <input type="hidden" ng-model="customer.CustomerId" />
+                                <input type="hidden" ng-model="receipt.ReceiptId" />
+                                <input type="hidden" ng-model="receipt.DateCreate" />
+                                <input class="form-control" type="text" placeholder="" ng-model="customer.FullName">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-secondary btn-block" id="btnSelectCustomer"><i class="fa fa-user"></i> Khách quen</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Địa chỉ:</label>
+                            <div class="col-md-10">
+                                <input class="form-control" type="text" ng-model="customer.Address" placeholder="">
+                            </div>
+
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Email:</label>
+                            <div class="col-md-5">
+                                <input class="form-control" type="text" ng-model="customer.Email" placeholder="">
+                            </div>
+                            <label class="control-label col-md-2">Điện thoại:</label>
+                            <div class="col-md-3">
+                                <input class="form-control" type="text" placeholder="" value="" ng-model="customer.Phone">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Ghi chú:</label>
+                            <div class="col-md-10">
+                                <input class="form-control" type="text" placeholder="" ng-model="receipt.Description">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <h4 class="control-label col-md-4"></h4>
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary btn-block" id="btnAddItem" data-receipt-id=""> <i class="fa fa-arrow-down"></i> Thêm</button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-12 table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+
+                                        <th style="width:30%;">Dịch vụ</th>
+                                        <th>Đơn vị tính</th>
+                                        <th>Số lượng</th>
+                                        <th>Đơn giá</th>
+                                        <th>Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in listReceiptServices">
+
+                                        <td style="font-weight:bold;"><a href="javascript:void();" style="font-size: 16px;">{{item.ItemName}}</a></td>
+                                        <td>{{item.Unit}}</td>
+                                        <td>
+                                            <input type="number" class="form-control txtQuantity" style="width:100px; text-align:center;" ng-model="item.Quantity" ng-change="txtQuantityChange(item.ReceiptServiceId, item.Quantity)" />
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control money" readonly="readonly" style="width:120px; text-align:center;" ng-model="item.Price" />
+                                        </td>
+
+                                        <td>
+                                            <input type="text" class="form-control money" readonly="readonly" style=" width:120px; text-align:center;" ng-model="item.Money" />
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger btnRemoveItem" ng-click="btnRemoveItemClick(item.ReceiptServiceId, item.ItemName)"><i class="fa fa-remove"></i></button>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="text-right" style="font-weight:bold; font-size:16px; background-color:#cfcfcf;">Tổng tiền:</td>
+                                        <td colspan="4" style="background-color:#cfcfcf;">
+                                            <input type="text" class="form-control" style="font-weight:bold; text-align:center; color:maroon; font-size: 16px; width:140px; background-color:white;" readonly="readonly" id="txtTotalMoney" value="" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="text-right" style="font-weight:bold; font-size:16px; background-color:#cfcfcf;">Bằng chữ:</td>
+                                        <td colspan="4" style="background-color:#cfcfcf;">
+                                            <input type="hidden" id="hiddenUserId" ng-model="user.UserId" />
+                                            <input type="text" class="form-control" ng-model="user.FullName" style="text-align:left; color:green; font-size: 16px; background-color:white;" readonly="readonly" id="txtTotalMoney_Text" value="Nguyễn Hồng Thanh" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">
+                            Nhân viên:    
+                        </label>
+                        <div class="col-md-8">
+                            
+                            <input type="text" class="form-control" readonly="readonly" ng-model="UserFullName" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <br />
+                            <a class="btn btn-outline-primary" href="@Url.Action("Index", "AdminReceipts")">
+                                <i class="fa fa-mail-reply"></i>
+                                Trở về danh sách
+                            </a>
+                            
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <br/>
+                            @*<a class="btn btn-outline-success" href="#" target="_blank">
+                                <i class="fa fa-save"></i>
+                                Lưu 
+                            </a>*@
+                            <a class="btn btn-success" href="javascript:void();" ng-click="btnSaveClick()">
+                                <i class="fa fa-save"></i> 
+                                Lưu phiếu 
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="modal modal-lg" id="modalSelectCustomer">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Khách quen</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm..." ng-model="txtSearch" />
+                            </div>
+                        </div>
+                        <div style="width:100%; height:300px; overflow-y:scroll;">
+                            <table class="table">
+                                <tr>
+                                    <th style="border-top:0px;">Họ tên</th>
+                                    <th style="border-top:0px;">Địa chỉ</th>
+                                    <th style="border-top:0px;">Điện thoại</th>
+                                    <th style="border-top:0px;"></th>
+                                </tr>
+                                <tr ng-repeat="customer in listCustomers | filter : txtSearch">
+                                    <td>
+                                        <strong>{{customer.FullName}}</strong>
+                                    </td>
+                                    <td>
+                                        {{customer.Address}}
+                                    </td>
+                                    <td>
+                                        {{customer.Phone}}
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-success" href="#" style="color:white;" ng-click="btnSelectCustomerClick('@(receiptId)', customer.CustomerId)">Chọn</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="modal modal-lg" id="modalSelectServices">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chọn dịch vụ</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm..." id="txtSearchService" />
+                            </div>
+                        </div>
+                        <div style="width:100%; height:300px; overflow-y:scroll;">
+                            <table class="table" id="tableSelectService">
+                                <tr>
+                                    <th style="border-top:0px;">#</th>
+                                    <th style="border-top:0px;">Tên dịch vụ</th>
+                                    <th style="border-top:0px;">Đơn vị tính</th>
+                                    <th style="border-top:0px;">Giá nhập</th>
+                                    <th style="border-top:0px;">Giá bán</th>
+                                    <th style="border-top:0px;"></th>
+                                </tr>
+                                @foreach (var serviceType in listServiceTypes)
+                                {
+                                    <tr>
+                                        <td colspan="6" style="background-color:#cfcfcf; font-weight:bold;">@serviceType.Name</td>
+                                    </tr>
+                                    foreach (var service in listServices.Where(x => x.IsDelete != true && x.IsActive == true && x.ServiceTypeId == serviceType.ServiceTypeId).ToList())
+                                    {
+                                        <tr>
+                                            <td>
+                                                @service.Alias
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0);" data-service-id="@service.ServiceId" data-receipt-id="@receiptId" class="btnSelectService">
+                                                    @service.Name
+                                                </a>
+                                            </td>
+                                            <td>@service.Unit</td>
+                                            <td>@service.ImportPrice.ToString("#,#")</td>
+                                            <td>@service.Price.ToString("#,#")</td>
+                                            <td>
+                                                <button class="btn btn-primary btnSelectService" data-service-id="@service.ServiceId" data-receipt-id="@receiptId" ng-click="btnSelectServiceClick('@(receiptId)', '@(service.ServiceId)')">Chọn</button>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                }
+
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<script src="~/Scripts/AdminReceipts/Detail.js?v=@Guid.NewGuid()"></script>

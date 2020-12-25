@@ -1,0 +1,660 @@
+﻿
+@{
+    ViewBag.Title = "Hóa đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    var _domain = (Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/");
+    int count = 1;
+    var listReceiptStatus = db.ReceiptStatus.Where(x => x.ReceiptStatusId >= 1 && x.ReceiptStatusId <= 4).OrderBy(x => x.OrderIndex).ToList();
+    var _dateFrom = Request.QueryString["from"];
+    var _dateTo = Request.QueryString["to"];
+    DateTime dateFrom = DateTime.Parse(DateTime.Now.ToShortDateString());
+    DateTime dateTo = DateTime.Parse(DateTime.Now.ToShortDateString());
+    string dateFromToShortDateString = dateFrom.ToShortDateString();
+    string dateToToShortDateString = dateTo.ToShortDateString();
+    DateTime dateToAddDay1 = dateTo.AddDays(1);
+    try
+    {
+        dateFrom = DateTime.Parse(_dateFrom);
+        dateFromToShortDateString = dateFrom.ToShortDateString();
+    }
+    catch { }
+    try
+    {
+        dateTo = DateTime.Parse(_dateTo);
+        dateToToShortDateString = dateTo.ToShortDateString();
+        dateToAddDay1 = dateTo.AddDays(1);
+    }
+    catch { }
+    TH.Agular.UserManager.Models.CurrentUser currentUser = new TH.Agular.UserManager.Models.CurrentUser();
+    if (Session["CurrentUser"] == null)
+    {
+        Response.Redirect(Url.Action("Login", "AdminHome"));
+    }
+    else
+    {
+        currentUser = Session["CurrentUser"] as TH.Agular.UserManager.Models.CurrentUser;
+        if (!currentUser.Permits.Any())
+        {
+            Response.Redirect(Url.Action("UserNotPermit", "AdminHome"));
+        }
+    }
+    var listReceipts = db.Receipts.Where(x => x.ReceiptStatusId != 5 && x.ReceiptStatusId != 5 && x.DateCreate >= dateFrom && x.DateCreate < dateToAddDay1 && x.ShopId == currentUser.ShopId).ToList();
+
+}
+<form method="get" action="@Url.Action("Index", "AdminReceipts")">
+    <div class="row">
+        <div class="col-md-1">
+            Từ ngày:
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="from" class="form-control datepicker" value="@dateFrom.ToShortDateString()" />
+            
+        </div>
+        <div class="col-md-1">
+            Đến ngày:
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="to" class="form-control datepicker" value="@dateTo.ToShortDateString()" />
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-secondary btn-block" type="submit"><i class="fa fa-search"></i> Xem</button>
+        </div>
+    </div>
+    <script>
+        $('.datepicker').datepicker({ format: "dd/mm/yyyy", autoclose: true });
+    </script>
+
+</form>
+
+<br/>
+<div class="row">
+    <div class="col-md-12">
+        <a href="@Url.Action("New","AdminReceipts", new {@type="HD", @shop = currentUser.ShopId})" class="btn btn-success"><i class="fa fa-plus"></i> Thêm mới hóa đơn</a>
+        <a href="@Url.Action("New","AdminReceipts", new {@type="PN", @shop = currentUser.ShopId})" class="btn btn-primary"><i class="fa fa-plus"></i> Phiếu nhập hàng</a>
+        <a href="@Url.Action("New","AdminReceipts", new {@type="PT", @shop = currentUser.ShopId})" class="btn btn-info"><i class="fa fa-plus"></i> Phiếu thu</a>
+        <a href="@Url.Action("New","AdminReceipts", new {@type="PC", @shop = currentUser.ShopId})" class="btn btn-warning"><i class="fa fa-plus"></i> Phiếu chi</a>
+    </div>
+</div>
+<br />
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-title-w-btn">
+                <h3 class="title">Chờ xác nhận</h3>
+            </div>
+            <div class="tile-body">
+
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Số HĐ</th>
+                            <th>Nhà thuốc</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày giờ</th>
+                            <th style="text-align:right;">Thành tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 1).OrderBy(x => x.ReceiptId).ToList())
+                        {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                    @receipt.ReceiptNumber
+                                </a>
+
+                            </td>
+                            <td>
+                                @receipt.Shop.Name
+                            </td>
+                            <td>
+
+                                @receipt.Customer.FullName
+
+                            </td>
+                            <td>@receipt.DateCreate</td>
+                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                            <td>
+                                <div class="pull-right">
+                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Chuyển
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                        @foreach (var item in listReceiptStatus)
+                                                {
+                                                <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                                }
+
+
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                            count++;
+                        }
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-title-w-btn">
+                <h3 class="title">Đang giao hàng</h3>
+            </div>
+            <div class="tile-body">
+
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Số HĐ</th>
+                            <th>Nhà thuốc</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày giờ</th>
+                            <th style="text-align:right;">Thành tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 2).OrderBy(x => x.ReceiptId).ToList())
+                        {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                    @receipt.ReceiptNumber
+                                </a>
+
+                            </td>
+                            <td>
+                                @receipt.Shop.Name
+                            </td>
+                            <td>
+
+                                @receipt.Customer.FullName
+
+                            </td>
+                            <td>@receipt.DateCreate</td>
+                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                            <td>
+                                <div class="pull-right">
+                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Chuyển
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                        @foreach (var item in listReceiptStatus)
+                                            {
+                                            <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                            }
+
+
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                            count++;
+                        }
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-title-w-btn">
+                <h3 class="title">Hoàn tất</h3>
+            </div>
+            <div class="tile-body" style="min-height:500px;">
+                <div class="bs-component">
+                    <ul class="nav nav-tabs">
+
+                        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab_1">Hóa đơn bán lẻ</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab_2">Phiếu nhập hàng</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab_3">Phiếu thu</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab_4">Phiếu chi</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab_5">Đã hủy</a></li>
+                    </ul>
+                    <div class="tab-content" id="tabContainer">
+                        <div class="tab-pane show active" id="tab_1">
+                            <br>
+
+                            @*<p><a class="btn btn-primary btnAddPermit" href="#" data-role-id="1" data-role-name="Quản trị hệ thống">Chọn người dùng</a></p>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input class="form-control" placeholder="Tìm kiếm...">
+                                </div>
+                            </div>*@
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Số HĐ</th>
+                                        <th>Nhà thuốc</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày giờ</th>
+                                        <th style="text-align:right;">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ 
+                                        decimal? sum = 0;
+                                    }
+                                    @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 3 && x.ReceiptTypeId == 1).OrderBy(x => x.ReceiptId).ToList())
+                                    {
+                                        
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                                    @receipt.ReceiptNumber
+                                                </a>
+
+                                            </td>
+                                            <td>
+                                                @receipt.Shop.Name
+                                            </td>
+                                            <td>
+
+                                                @receipt.Customer.FullName
+
+                                            </td>
+                                            <td>@receipt.DateCreate</td>
+                                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                                            <td>
+                                                <div class="pull-right">
+                                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Chuyển
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                                        @foreach (var item in listReceiptStatus)
+                                                        {
+                                                            <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                                        }
+
+
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                        sum += receipt.TotalMoney;
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">Tổng tiền: </td>
+                                        <td colspan="1" style="text-align:right;">
+                                            <strong>@String.Format("{0:n0}", sum)</strong>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab_2">
+                            <br>
+
+                            @*<p><a class="btn btn-primary btnAddPermit" href="#" data-role-id="2" data-role-name="Quản trị cửa hàng">Chọn người dùng</a></p>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input class="form-control" placeholder="Tìm kiếm...">
+                                </div>
+                            </div>*@
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Số HĐ</th>
+                                        <th>Nhà thuốc</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày giờ</th>
+                                        <th style="text-align:right;">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        sum = 0;
+                                    }
+                                    @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 3 && x.ReceiptTypeId == 2).OrderBy(x => x.ReceiptId).ToList())
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                                    @receipt.ReceiptNumber
+                                                </a>
+
+                                            </td>
+                                            <td>
+                                                @receipt.Shop.Name
+                                            </td>
+                                            <td>
+
+                                                @receipt.Customer.FullName
+
+                                            </td>
+                                            <td>@receipt.DateCreate</td>
+                                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                                            <td>
+                                                <div class="pull-right">
+                                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Chuyển
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                                        @foreach (var item in listReceiptStatus)
+                                                        {
+                                                            <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                                        }
+
+
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                        sum += receipt.TotalMoney;
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">Tổng tiền: </td>
+                                        <td colspan="1" style="text-align:right;">
+                                            <strong>@String.Format("{0:n0}", sum)</strong>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab_3">
+                            <br>
+
+                            @*<p><a class="btn btn-primary btnAddPermit" href="#" data-role-id="3" data-role-name="Nhân viên cửa hàng">Chọn người dùng</a></p>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input class="form-control" placeholder="Tìm kiếm...">
+                                </div>
+                            </div>*@
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Số HĐ</th>
+                                        <th>Nhà thuốc</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày giờ</th>
+                                        <th style="text-align:right;">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        sum = 0;
+                                    }
+                                    @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 3 && x.ReceiptTypeId == 3).OrderBy(x => x.ReceiptId).ToList())
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                                    @receipt.ReceiptNumber
+                                                </a>
+
+                                            </td>
+                                            <td>
+                                                @receipt.Shop.Name
+                                            </td>
+                                            <td>
+
+                                                @receipt.Customer.FullName
+
+                                            </td>
+                                            <td>@receipt.DateCreate</td>
+                                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                                            <td>
+                                                <div class="pull-right">
+                                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Chuyển
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                                        @foreach (var item in listReceiptStatus)
+                                                        {
+                                                            <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                                        }
+
+
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                        sum += receipt.TotalMoney;
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">Tổng tiền: </td>
+                                        <td colspan="1" style="text-align:right;">
+                                            <strong>@String.Format("{0:n0}", sum)</strong>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab_4">
+                            <br>
+
+                            @*<p><a class="btn btn-primary btnAddPermit" href="#" data-role-id="3" data-role-name="Nhân viên cửa hàng">Chọn người dùng</a></p>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input class="form-control" placeholder="Tìm kiếm...">
+                                </div>
+                            </div>*@
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Số HĐ</th>
+                                        <th>Nhà thuốc</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày giờ</th>
+                                        <th style="text-align:right;">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        sum = 0;
+                                    }
+                                    @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 3 && x.ReceiptTypeId == 4).OrderBy(x => x.ReceiptId).ToList())
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                                    @receipt.ReceiptNumber
+                                                </a>
+
+                                            </td>
+                                            <td>
+                                                @receipt.Shop.Name
+                                            </td>
+                                            <td>
+
+                                                @receipt.Customer.FullName
+
+                                            </td>
+                                            <td>@receipt.DateCreate</td>
+                                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                                            <td>
+                                                <div class="pull-right">
+                                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Chuyển
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                                        @foreach (var item in listReceiptStatus)
+                                                        {
+                                                            <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                                        }
+
+
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                        sum += receipt.TotalMoney;
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">Tổng tiền: </td>
+                                        <td colspan="1" style="text-align:right;">
+                                            <strong>@String.Format("{0:n0}", sum)</strong>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab_5">
+                            <br>
+
+                            @*<p><a class="btn btn-primary btnAddPermit" href="#" data-role-id="3" data-role-name="Nhân viên cửa hàng">Chọn người dùng</a></p>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input class="form-control" placeholder="Tìm kiếm...">
+                                </div>
+                            </div>*@
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Số HĐ</th>
+                                        <th>Nhà thuốc</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày giờ</th>
+                                        <th style="text-align:right;">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        sum = 0;
+                                    }
+                                    @foreach (var receipt in listReceipts.Where(x => x.ReceiptStatusId == 4).OrderBy(x => x.ReceiptId).ToList())
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})">
+                                                    @receipt.ReceiptNumber
+                                                </a>
+
+                                            </td>
+                                            <td>
+                                                @receipt.Shop.Name
+                                            </td>
+                                            <td>
+
+                                                @receipt.Customer.FullName
+
+                                            </td>
+                                            <td>@receipt.DateCreate</td>
+                                            <td style="text-align:right;">@String.Format("{0:n0}", receipt.TotalMoney)</td>
+                                            <td>
+                                                <div class="pull-right">
+                                                    <a href="@Url.Action("Detail", "AdminReceipts", new { @id = receipt.ReceiptId, @guid = receipt.GUID})" style="color:white;" class="btn btn-primary btn-sm "><i class="fa fa-pencil"></i> Sửa</a>
+                                                    @*<button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>*@
+
+                                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton_@receipt.ReceiptId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Chuyển
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_@receipt.ReceiptId">
+                                                        @foreach (var item in listReceiptStatus)
+                                                        {
+                                                            <a class="dropdown-item" href="@Url.Action("UpdateStatus", "AdminReceipts", new { id = receipt.ReceiptId, status = item.ReceiptStatusId, guid = receipt.GUID, from = dateFromToShortDateString, to = dateToToShortDateString})">@item.Name</a>
+                                                        }
+
+
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                        sum += receipt.TotalMoney;
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">Tổng tiền: </td>
+                                        <td colspan="1" style="text-align:right;">
+                                            <strong>@String.Format("{0:n0}", sum)</strong>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+<script>
+
+    var urlList = '@Url.Action("_pList", "AdminPermits")';
+    var urlDetail = '@Url.Action("_pDetail", "AdminPermits")';
+    var app = angular.module("myApp", ["ngRoute"]);
+    var _domain = '@(Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/")';
+
+</script>
+
+
+<script src="~/Scripts/AdminReceipts/Index.js?v=@Guid.NewGuid()"></script>

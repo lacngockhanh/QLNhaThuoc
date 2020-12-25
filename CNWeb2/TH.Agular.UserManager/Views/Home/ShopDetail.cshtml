@@ -1,0 +1,182 @@
+﻿
+@{
+    ViewBag.Title = "ShopDetail";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+
+    string id = ViewContext.RouteData.Values["id"].ToString();
+
+    TH.Agular.UserManager.Models.UserManagerEntities db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    var shop = db.Shops.Find(id);
+
+    
+
+    string keyWord = Request.QueryString["search"] ?? "";
+
+    var listServiceTypes = db.ServiceTypes.Where(x => x.ShopId == id && (x.IsDelete != true) && (keyWord == "" || (keyWord != "" && x.Name.Contains(keyWord)))).OrderBy(x => x.OrderIndex).ToList();
+    var listServices = db.Services.Where(x => x.ShopId == id && x.IsDelete != true && (keyWord == "" || (keyWord != "" && x.Name.Contains(keyWord)))).OrderBy(x => x.OrderIndex).ToList();
+
+    //var _domain = (Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/");
+    //var urlIndex = Url.Action("Index", "AdminServices");
+}
+
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <h5 class="card-header text-white bg-primary">Thông tin cửa hàng</h5>
+            <div class="card-body">
+                <table style="width:100%;">
+
+                        <tr>
+                            <td style="width:40%; vertical-align:top;">
+                                
+                                    <img src="@shop.Image" style="width:80%; margin:20px; margin-top:0px; padding:5px; border:1px solid #ccc;" />
+                                
+                                
+                            </td>
+                            <td style="vertical-align:top;">
+                                <h4 class="card-title">
+                                    @shop.Name
+                                </h4>
+                                <p class="card-text">
+                                    <strong>Mô tả: </strong> @shop.Description
+                                    
+                                    <br />
+                                    --------------------
+                                    <br/>
+                                    <strong>Địa chỉ: </strong> @shop.Address
+                                    <br />
+                                    <strong>Điện thoại: </strong> @shop.Phone
+                                    <br/>
+                                    ----------
+                                    <br/>
+                                    <strong>Người đại diện: </strong> @shop.OwnerName
+                                    <br/>
+                                    <strong>Điện thoại: </strong> @shop.OwnerPhone
+                                </p>
+                                <a href="#" class="btn btn-success">Chi tiết</a>
+
+                            </td>
+                        </tr>
+
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+</div>
+<br/>
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <h5 class="card-header text-white bg-primary">Danh mục sản phẩm</h5>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Tìm nhanh ..." id="txtServiceSearch" />
+                    </div>
+                    
+                    <script>
+                        $(document).ready(function(){
+                            $("#txtServiceSearch").on("keyup", function() {
+                            var value = $(this).val().toLowerCase();
+                            $("#myTable tr").filter(function() {
+                              $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                            });
+                          });
+                        });
+                    </script> 
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tile" style="overflow-y:scroll; height:600px;">
+                            <table class="table table-sm" id="myTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên thuốc</th>
+                                        <th>Đơn vị tính</th>                                        
+                                        <th>Giá</th>
+                                        
+                                        <th>Số lượng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var serviceType in listServiceTypes)
+            {
+                                        <tr>
+                                            <td colspan="8" style="background-color:#ccc;">
+                                                @serviceType.Name
+                                            </td>
+                                            
+                                        </tr>
+                                        foreach (var service in serviceType.Services.Where(x => x.IsDelete != true).ToList())
+                                        {
+                                            <tr>
+                                                <td>@service.OrderIndex</td>
+                                                <td>
+                                                    <a href="#!/edit/@service.ServiceId">
+                                                        @service.Name
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    @service.Unit
+                                                </td>
+                                                
+                                                <td>
+                                                    @service.Price.ToString("#,#")
+                                                </td>
+                                                @*<td>
+                                                    <input type="checkbox" disabled="disabled" @((service.IsActive) ? "checked='checked'" : "") />
+                                                </td>*@
+                                                <td>
+                                                    <form method="post" action="@Url.Action("AddToCart", "Home", new { ShopId = shop.ShopId, ServiceId = service.ServiceId, Quantity = service.DefaultQuantity})">
+                                                        <input type="hidden" name="ShopId" value="@shop.ShopId"/>
+                                                        <input type="hidden" name="ServiceId" value="@service.ServiceId" />
+                                                        
+                                                        
+                                                        <input type="number" style="width:100px; text-align:center;" name="Quantity" value="@service.DefaultQuantity.ToString("#,#")" />
+                                                        <button class="btn btn-primary btn-sm" style="color:white; float:right; margin-left:5px;"><i class="fa fa-cart-plus"></i> Thêm giỏ hàng</button>
+                                                        
+                                                        
+                                                    </form>
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+
+                                </tbody>
+                            
+                            </table>
+                            <br />
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>      
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+</div>
+

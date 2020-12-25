@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewBag.Title = "Danh mục chi phí";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div ng-app="myApp">
+
+    <div ng-view>
+
+    </div>       
+</div>
+
+
+<script>
+
+    var urlIndex = '@Url.Action("Index", "AdminServices")';
+    var urlList = '@Url.Action("_pList", "AdminServices")';
+    var urlDetail = '@Url.Action("_pDetail", "AdminServices")';
+    var app = angular.module("myApp", ["ngRoute"]);
+    var _domain = '@(Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/")';
+
+</script>
+
+<script src="~/Scripts/AdminServices/Index.js?v=@Guid.NewGuid()"></script>

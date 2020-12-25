@@ -1,0 +1,144 @@
+﻿
+@{
+    ViewBag.Title = "Phân quyền tài khoản";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    var listRoles = db.Roles.OrderBy(x => x.OrderIndex).ToList();
+    var listPermits = db.Permits.OrderBy(x => x.PermitId).ToList();
+    var _domain = (Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/");
+    var listUsers = db.Users.Where(x => x.IsDelete != true).OrderBy(x => x.UserName).ToList();
+}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            
+            <div class="tile-body" style="min-height:500px;">
+                <div class="bs-component">
+                    <ul class="nav nav-tabs">
+                        
+                        @{ 
+                            bool isFirst = true;
+                        }
+                        @foreach (var role in listRoles)
+                        {
+                            <li class="nav-item"><a class="nav-link @(isFirst?"active":"")" data-toggle="tab" href="#tab_@role.RoleId">@role.Name</a></li>
+                            isFirst = false;
+                        }
+
+                    </ul>
+                    <div class="tab-content" id="tabContainer">
+                        @{ 
+                            isFirst = true;
+                        }
+                        @foreach (var role in listRoles)
+                        {
+                            <div class="tab-pane @(isFirst?"active show":"")" id="tab_@role.RoleId">
+                                <br />
+                                      
+                                <p><a class="btn btn-primary btnAddPermit" href="#" data-role-id="@role.RoleId" data-role-name="@role.Name">Chọn tài khoản</a></p>
+                                @*<div class="row form-group">
+                                    <div class="col-md-12">
+                                        <input class="form-control" placeholder="Tìm kiếm..."/>
+                                    </div>
+                                </div>*@
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th>Tên đăng nhập</th>
+                                            <th>Họ tên</th>
+                                            <th>Cửa hàng</th>
+                                            <th></th>
+                                        </tr>
+                                        @foreach (var permit in listPermits.Where(x => x.RoleId == role.RoleId))
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @permit.User.UserName
+                                                </td>
+                                                <td>
+                                                    @permit.User.FullName
+                                                </td>
+                                                <td>
+                                                    @permit.User.Shop.Name
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="btn btnRemovePermit" data-permit-id="@permit.PermitId"><i class="fa fa-trash-o"></i> Xóa</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            isFirst = false;
+                        }
+                        
+                        
+                        
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="modal" id="modalAddPermit">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Phân quyền</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">                            
+                            <label class="col-md-3">Quyền:</label>
+                            <div class="col-md-9">
+                                <input type="hidden" class="form-control" id="hiddenRoleId" />
+                                <input type="text" class="form-control" readonly="readonly" id="txtRoleName" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3">Tài khoản:</label>
+                            <div class="col-md-9">
+                                <select class="form-control" id="selectUser" style="width:100%;">
+                                    <option value=""> - chọn tài khoản - </option>
+                                    @foreach (var user in listUsers)
+                                    {
+                                        <option value="@user.UserId">@user.UserName - @user.FullName - @user.Shop.Name</option>
+                                    }                                    
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="button" id="btnSavePermit">Đồng ý</button>
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy bỏ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+
+    var urlList = '@Url.Action("_pList", "AdminPermits")';
+    var urlDetail = '@Url.Action("_pDetail", "AdminPermits")';
+    var app = angular.module("myApp", ["ngRoute"]);
+    var _domain = '@(Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port) + "/")';
+
+</script>
+
+
+<script src="~/Scripts/AdminPermits/Index.js?v=@Guid.NewGuid()"></script>

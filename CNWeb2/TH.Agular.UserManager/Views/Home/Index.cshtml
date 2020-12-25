@@ -1,0 +1,140 @@
+﻿
+@{
+    ViewBag.Title = "Hệ thống";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+    //string id = ViewContext.RouteData.Values["id"].ToString();
+
+    TH.Agular.UserManager.Models.UserManagerEntities db = new TH.Agular.UserManager.Models.UserManagerEntities();
+    //var shop = db.Shops.Find(id);
+
+  
+    string orderby = Request.QueryString["orderby"] ?? "";
+
+
+
+    List<TH.Agular.UserManager.Models.Service> listServices = new List<TH.Agular.UserManager.Models.Service>();
+    string keyWord = Request.QueryString["search"] ?? "";
+    if (keyWord != "")
+    {
+        
+            if (orderby == "asc")
+            {
+                listServices = db.Services.Where(x => x.IsDelete != true && x.Name.Contains(keyWord)).OrderBy(x => x.Price).ToList();
+            }
+            else if (orderby == "desc")
+            {
+                listServices = db.Services.Where(x => x.IsDelete != true && x.Name.Contains(keyWord)).OrderByDescending(x => x.Price).ToList();
+            } else
+            {
+                listServices = db.Services.Where(x => x.IsDelete != true && x.Name.Contains(keyWord)).ToList();
+            }
+    }
+
+
+
+}
+
+
+<div class="row">
+    <div class="col-md-3">
+
+    </div>
+    <div class="col-md-6 text-center">
+        <form method="get" action="@Url.Action("Index", "Home")">
+
+            <input type="text" class="form-control" name="search" placeholder="Nhập sản phẩm cần tìm..." value="@keyWord" />
+            <br />
+            <button class="btn  btn-primary pull-right"><i class="fa fa-search"></i> Tìm kiếm</button>
+
+            <label style="color:gray;">Sắp xếp giá: </label>
+            <select name="orderby" style="color:gray;">
+                <option value="" style="color:gray;" @((orderby == "asc") ? "selected='selected'" : "")>- không -</option>
+                <option value="asc" style="color:gray;" @((orderby == "asc")?"selected='selected'":"")>Tăng dần</option>
+                <option value="desc" style="color:gray;" @((orderby == "desc")? "selected='selected'":"")>Giảm dần</option>
+            </select>
+            <br /><br />
+            
+        </form>
+        
+
+        
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <h5 class="card-header text-white bg-primary">Danh mục sản phẩm</h5>
+            <div class="card-body">
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tile" style="overflow-y:scroll; height:600px;">
+                            <table class="table table-sm" id="myTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên thuốc</th>
+                                        <th>Đơn vị tính</th>
+                                        <th>Giá</th>
+
+                                        <th>Số lượng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var service in listServices)
+                                    {
+                                    <tr>
+                                        <td>@service.OrderIndex</td>
+                                        <td>
+                                            <a href="#!/edit/@service.ServiceId">
+                                                @service.Name   <br />
+                                                <span style="color:#aaa; font-size:11px;">@service.Shop.Name</span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @service.Unit
+                                        </td>
+
+                                        <td>
+                                            @service.Price.ToString("#,#")
+                                        </td>
+                                        <td>
+
+                                            <form method="post" action="@Url.Action("AddToCart", "Home")">
+                                                <input type="hidden" name="ShopId" value="@service.ShopId" />
+                                                <input type="hidden" name="ServiceId" value="@service.ServiceId" />
+                                                <input type="hidden" name="ReturnPage" value="search" />
+                                                <input type="hidden" name="search" value="@keyWord" />                                                
+                                                <input type="hidden" name="OrderBy" value="@orderby" />
+                                                <input type="number" style="width:100px; text-align:center;" name="Quantity" value="@service.DefaultQuantity.ToString("#,#")" />
+                                                <button class="btn btn-primary btn-sm" style="color:white; float:right; margin-left:5px;"><i class="fa fa-cart-plus"></i> Thêm giỏ hàng</button>
+
+
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+                            <br />
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+</div>
+
+

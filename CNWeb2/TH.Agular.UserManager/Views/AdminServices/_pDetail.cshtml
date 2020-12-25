@@ -1,0 +1,94 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <a href="#!/list" class="btn btn-secondary"><i class="fa fa-list"></i> Trở về danh sách</a>
+    </div>
+</div>
+<br />
+<div class="row" ng-app="myApp">              
+    <div class="col-md-12" ng-controller="myDetailController">
+        <div class="tile">
+            <h3 class="tile-title">Thông tin chi phí</h3>
+            <div class="tile-body">
+                <form class="form-horizontal">
+                    <input type="hidden" ng-model="ServiceId" placeholder="" />
+                    
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Tên chi phí:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="Name" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Loại chi phí:</label>
+                        <div class="col-md-8">
+                            <select class="form-control" ng-model="ServiceTypeId">
+                                <option ng-repeat="x in servicetypes" ng-selected="{{ServiceTypeId == x.ServiceTypeId}}" value="{{x.ServiceTypeId}}">{{x.Name}} - {{x.ShopName}}</option>
+                            </select>                               
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Số thứ tự:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="OrderIndex" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Ký hiệu:</label>
+                        <div class="col-md-3">
+                            <input class="form-control" type="text" ng-model="Alias" placeholder="">
+                        </div>
+                        <label class="control-label col-md-2">Đơn vị tính:</label>
+                        <div class="col-md-3">
+                            <input class="form-control" type="text" ng-model="Unit" placeholder="">
+                        </div>
+                    
+                        
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Giá nhập:</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" ng-model="ImportPrice" placeholder="">
+                        </div>
+                        <label class="control-label col-md-2">Giá bán:</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" ng-model="Price" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Số lượng mặc định:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="DefaultQuantity" placeholder="">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Mô tả:</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" type="text" ng-model="Description"></textarea>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="form-group row">
+                        <label class="control-label col-md-3"></label>
+                        <div class="col-md-8">
+                            <div class="animated-checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="IsActive" id="checkboxIsActive" checked="checked"><span class="label-text"> Cho phép hoạt động</span>
+                                </label>
+                            </div>                                        
+                        </div>
+                    </div> 
+                </form>
+            </div>
+            <div class="tile-footer">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-3">
+                        <button class="btn btn-primary" type="button" ng-click="btnSaveClick()"><i class="fa fa-fw fa-lg fa-check-circle"></i>Đồng ý</button>&nbsp;&nbsp;&nbsp;
+                        <a class="btn btn-secondary" href="#!/list"><i class="fa fa-fw fa-lg fa-times-circle"></i>Hủy bỏ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
